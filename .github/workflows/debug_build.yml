@@ -72,6 +72,15 @@ jobs:
           # Copy headers to a local include directory for the native-vnc CMake build
           mkdir -p "${GITHUB_WORKSPACE}/app/src/main/cpp/libvncserver_include"
           cp -r ../include/rfb "${GITHUB_WORKSPACE}/app/src/main/cpp/libvncserver_include/"
+          # Verify the copy
+          echo "Verifying copied headers:"
+          ls -la "${GITHUB_WORKSPACE}/app/src/main/cpp/libvncserver_include/rfb/" | head -20
+          if [ -f "${GITHUB_WORKSPACE}/app/src/main/cpp/libvncserver_include/rfb/rfbconfig.h" ]; then
+            echo "rfbconfig.h found in copied headers"
+          else
+            echo "ERROR: rfbconfig.h NOT found in copied headers!"
+            find "${GITHUB_WORKSPACE}/app/src/main/libvncserver" -name "rfbconfig.h" 2>/dev/null
+          fi
           
           # Copy built library to jniLibs using absolute paths (CMake expects app/src/jniLibs/)
           mkdir -p "${GITHUB_WORKSPACE}/app/src/jniLibs/arm64-v8a"
