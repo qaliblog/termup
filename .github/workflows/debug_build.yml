@@ -94,6 +94,9 @@ jobs:
           docker --version
           echo ""
 
+          # Debug: check what prebuilt files exist
+          ls -la "${GITHUB_WORKSPACE}/termbox-assets/prebuilt/box64/" || echo "prebuilt dir not found"
+
           # Run asset preparation (Box64 is REQUIRED - build fails if it cannot be produced)
           # provisionRootfs=true is now the default; explicitly pass it for clarity
           ./gradlew prepareTermUpAssets -PprovisionRootfs=true --info
