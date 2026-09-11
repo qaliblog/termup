@@ -372,7 +372,7 @@ PROFILEEOF
   chmod +x /etc/profile.d/termbox-vnc.sh
 
   # Write provisioned marker
-  touch /etc/termbox-provisioned
+  touch /etc/termup-provisioned
   echo "  [apt] Provisioned marker written."
 
   # Keep apt lists so users can install additional packages at runtime.
@@ -420,12 +420,12 @@ chmod 1777 "${ROOTFS_DIR}/tmp" 2>/dev/null || true
 # ---- Verify provisioning ----
 echo ""
 echo "  Verifying provisioning..."
-if [ -f "${ROOTFS_DIR}/etc/termbox-provisioned" ] && [ -x "${ROOTFS_DIR}/usr/lib/systemd/systemd" ]; then
+if [ -f "${ROOTFS_DIR}/etc/termup-provisioned" ] && [ -x "${ROOTFS_DIR}/usr/lib/systemd/systemd" ]; then
   echo "  ✓ systemd binary: present"
   echo "  ✓ Provisioned marker: present"
 else
   echo "  ✗ Provisioning verification failed!" >&2
-  [ -f "${ROOTFS_DIR}/etc/termbox-provisioned" ] || echo "    Missing: /etc/termbox-provisioned" >&2
+  [ -f "${ROOTFS_DIR}/etc/termup-provisioned" ] || echo "    Missing: /etc/termup-provisioned" >&2
   [ -x "${ROOTFS_DIR}/usr/lib/systemd/systemd" ] || echo "    Missing: /usr/lib/systemd/systemd" >&2
   exit 1
 fi

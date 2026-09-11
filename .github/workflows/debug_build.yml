@@ -29,7 +29,7 @@ jobs:
           java-version: '17'
 
       - name: Cache TermUp assets
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             build/termup-assets
@@ -179,7 +179,7 @@ jobs:
           # scans for x86_64 executables, termbox-wrapd keeps the wrap table fresh so
           # binaries spawned by subprocesses (e.g. aapt2 under gradlew) get wrapped too.
           # These replaced the legacy libbox64auto.so LD_PRELOAD interposer.
-          for LAYER_BIN in termbox-x86_64-launcher termbox-scan64 termbox-wrapd; do
+          for LAYER_BIN in termup-x86_64-launcher termup-scan64 termup-wrapd; do
             LAYER_PATH="$ASSETS_DIR/box64/$LAYER_BIN"
             if [ -f "$LAYER_PATH" ]; then
               LAYER_TYPE=$(file "$LAYER_PATH")

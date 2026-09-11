@@ -541,6 +541,7 @@
     "required_for_offline": true,
     "license": "GPL-2.0+",
     "license_url": "https://docs.xfce.org/xfce/xfce4-session/start",
+    "url": "https://github.com/termux/termux-packages/releases/download/xfce-desktop-2024.01.01/xfce-desktop-arm64.tar.gz",
     "source": "https://github.com/termux/termux-packages/releases/download/xfce-desktop-2024.01.01/xfce-desktop-arm64.tar.gz",
     "notes": "Prebuilt XFCE desktop environment including xfce4-session, xfwm4, xfce4-panel, xfce4-settings, thunar, and required dependencies. Extracted to ubuntu-rootfs/overlay at build time.",
     "destination": "xfce/xfce-desktop-arm64.tar.gz",

@@ -553,7 +553,7 @@ task prepareTermUpAssets {
         logger.quiet("\n--- Preparing Box64 transparent layer ---")
         def box64Layer = manifest.'box64-layer'
         try {
-            def srcLauncher = new File(termupAssetsDir, 'prebuilt/box64/termup-x86_64-launcher')
+            def srcLauncher = new File(termupAssetsDir, 'prebuilt/box64/termbox-x86_64-launcher')
             def destLauncher = new File(termupApkAssetsDir, 'box64/termup-x86_64-launcher')
             if (srcLauncher.exists()) {
                 destLauncher.parentFile.mkdirs()
@@ -562,30 +562,30 @@ task prepareTermUpAssets {
                 logger.quiet("  [box64-layer] READY (launcher ${destLauncher.length()} bytes)")
                 assetsReady++
             } else {
-                throw new GradleException("termup-x86_64-launcher not found at ${srcLauncher.absolutePath} " +
-                    "- build it from termup-assets/prebuilt/box64/termup-x86_64-launcher.c with the NDK")
+                throw new GradleException("termbox-x86_64-launcher not found at ${srcLauncher.absolutePath} " +
+                    "- build it from termup-assets/prebuilt/box64/termbox-x86_64-launcher.c with the NDK")
             }
 
-            def srcScanner = new File(termupAssetsDir, 'prebuilt/box64/termup-scan64')
+            def srcScanner = new File(termupAssetsDir, 'prebuilt/box64/termbox-scan64')
             def destScanner = new File(termupApkAssetsDir, 'box64/termup-scan64')
             if (srcScanner.exists()) {
                 java.nio.file.Files.copy(srcScanner.toPath(), destScanner.toPath(),
                     java.nio.file.StandardCopyOption.REPLACE_EXISTING)
                 logger.quiet("  [box64-layer] READY (scanner ${destScanner.length()} bytes)")
             } else {
-                throw new GradleException("termup-scan64 not found at ${srcScanner.absolutePath} " +
-                    "- build it from termup-assets/prebuilt/box64/termup-scan64.c with the NDK")
+                throw new GradleException("termbox-scan64 not found at ${srcScanner.absolutePath} " +
+                    "- build it from termup-assets/prebuilt/box64/termbox-scan64.c with the NDK")
             }
 
-            def srcWrapd = new File(termupAssetsDir, 'prebuilt/box64/termup-wrapd')
+            def srcWrapd = new File(termupAssetsDir, 'prebuilt/box64/termbox-wrapd')
             def destWrapd = new File(termupApkAssetsDir, 'box64/termup-wrapd')
             if (srcWrapd.exists()) {
                 java.nio.file.Files.copy(srcWrapd.toPath(), destWrapd.toPath(),
                     java.nio.file.StandardCopyOption.REPLACE_EXISTING)
                 logger.quiet("  [box64-layer] READY (watcher ${destWrapd.length()} bytes)")
             } else {
-                throw new GradleException("termup-wrapd not found at ${srcWrapd.absolutePath} " +
-                    "- build it from termup-assets/prebuilt/box64/termup-wrapd.c with the NDK")
+                throw new GradleException("termbox-wrapd not found at ${srcWrapd.absolutePath} " +
+                    "- build it from termup-assets/prebuilt/box64/termbox-wrapd.c with the NDK")
             }
         } catch (Exception e) {
             logger.warn("  [box64-layer] Warning: ${e.message}")

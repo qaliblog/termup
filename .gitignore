@@ -12,8 +12,8 @@ release/
 *.zip
 
 # TermBox generated assets (downloaded at build time, not committed to git)
-app/src/main/assets/termbox-runtime/
-build/termbox-assets/
+app/src/main/assets/termup-runtime/
+build/termup-assets/
 
 # Local configuration file (sdk path, etc)
 local.properties
