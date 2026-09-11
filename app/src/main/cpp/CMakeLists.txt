@@ -14,10 +14,9 @@ add_library(native-vnc SHARED
     native-vnc.cpp
 )
 
-# Link against libvncclient (we'll build it as part of this)
-# For now, we'll link against a prebuilt or system library
+# Link against libvncclient (prebuilt, placed in jniLibs by prepareTermUpAssets)
 target_link_libraries(native-vnc
-    ${CMAKE_CURRENT_SOURCE_DIR}/libvncclient/libvncclient.a
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../jniLibs/${ANDROID_ABI}/libvncclient.a
     log
     GLESv2
     jnigraphics
@@ -25,5 +24,5 @@ target_link_libraries(native-vnc
 
 # Add include directories for libvncclient
 target_include_directories(native-vnc PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/libvncclient/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../libvncserver
 )
