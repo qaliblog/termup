@@ -26,4 +26,5 @@ target_link_libraries(native-vnc
 target_include_directories(native-vnc PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../libvncserver/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../libvncserver
+    ${CMAKE_CURRENT_SOURCE_DIR}/../libvncserver/build
 )
