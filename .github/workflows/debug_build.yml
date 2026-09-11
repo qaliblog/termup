@@ -62,7 +62,7 @@ jobs:
             git clone --depth 1 --branch LibVNCServer-0.9.15 https://github.com/LibVNC/libvncserver.git app/src/main/libvncserver
           fi
           
-# Build libvncclient using cmake
+          # Build libvncclient using cmake
           cd "${GITHUB_WORKSPACE}/app/src/main/libvncserver"
           mkdir -p build
           cd build
