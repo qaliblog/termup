@@ -62,18 +62,19 @@ jobs:
             git clone --depth 1 --branch LibVNCServer-0.9.15 https://github.com/LibVNC/libvncserver.git app/src/main/libvncserver
           fi
           
-          # Build libvncclient using cmake
+# Build libvncclient using cmake
           cd "${GITHUB_WORKSPACE}/app/src/main/libvncserver"
           mkdir -p build
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release -DWITH_LIBSSL=OFF -DWITH_LIBSSH2=OFF -DWITH_LIBJPEG=OFF -DWITH_LIBPNG=OFF -DWITH_LZO=OFF -DWITH_ZLIB=ON -DBUILD_SHARED_LIBS=OFF ..
           make -j$(nproc) vncclient
           
-          # Copy headers from build directory (includes generated rfbconfig.h) to local include directory
+          # Copy headers from source tree (rfbclient.h, rfbproto.h, etc.) AND generated rfbconfig.h from build
           mkdir -p "${GITHUB_WORKSPACE}/app/src/main/cpp/libvncserver_include"
-          cp -r include/rfb "${GITHUB_WORKSPACE}/app/src/main/cpp/libvncserver_include/"
-          # Also copy generated rfbconfig.h from build/include/rfb/
-          cp include/rfb/rfbconfig.h "${GITHUB_WORKSPACE}/app/src/main/cpp/libvncserver_include/rfb/" 2>/dev/null || true
+          # Copy all headers from source tree
+          cp -r "${GITHUB_WORKSPACE}/app/src/main/libvncserver/include/rfb" "${GITHUB_WORKSPACE}/app/src/main/cpp/libvncserver_include/"
+          # Overlay generated rfbconfig.h from build directory
+          cp "${GITHUB_WORKSPACE}/app/src/main/libvncserver/build/include/rfb/rfbconfig.h" "${GITHUB_WORKSPACE}/app/src/main/cpp/libvncserver_include/rfb/" 2>/dev/null || true
           # Verify the copy
           echo "Verifying copied headers:"
           ls -la "${GITHUB_WORKSPACE}/app/src/main/cpp/libvncserver_include/rfb/" | head -20
