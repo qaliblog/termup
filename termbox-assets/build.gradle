@@ -34,7 +34,7 @@ ext {
     provisionRootfs = project.hasProperty('provisionRootfs') ? project.property('provisionRootfs').toBoolean() : true
 
     // Asset directories
-    termupAssetsDir = new File(project.rootDir, 'termup-assets')
+    termupAssetsDir = new File(project.rootDir, 'termbox-assets')
     termupCacheDir = new File(project.rootDir, 'build/termup-assets')
     termupDownloadsDir = new File(termupCacheDir, 'downloads')
     termupExtractedDir = new File(termupCacheDir, 'extracted')
