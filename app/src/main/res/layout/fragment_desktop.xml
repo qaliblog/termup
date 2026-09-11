@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface">
+
+    <!-- VNC FrameView for rendering remote desktop -->
+    <com.termux.app.vnc.VncFrameView
+        android:id="@+id/vnc_frame_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <!-- VNC InputView for handling touch/keyboard input -->
+    <com.termux.app.vnc.VncInputView
+        android:id="@+id/vnc_input_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Loading indicator -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/vnc_loading_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/colorSurface"
+        android:visibility="visible">
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/vnc_loading_progress"
+            style="@style/Widget.MaterialComponents.CircularProgressIndicator"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:indeterminate="true"
+            app:indicatorColor="?attr/colorPrimary"
+            app:layout_constraintBottom_toTopOf="@id/vnc_loading_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/vnc_loading_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_normal"
+            android:text="@string/vnc_connecting"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

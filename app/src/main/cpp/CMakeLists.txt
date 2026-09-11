@@ -1,0 +1,29 @@
+cmake_minimum_required(VERSION 3.18)
+
+project(TermUpNative C CXX)
+
+# Make sure we use the correct C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Include directories
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+# Build libnative-vnc
+add_library(native-vnc SHARED
+    native-vnc.cpp
+)
+
+# Link against libvncclient (we'll build it as part of this)
+# For now, we'll link against a prebuilt or system library
+target_link_libraries(native-vnc
+    ${CMAKE_CURRENT_SOURCE_DIR}/libvncclient/libvncclient.a
+    log
+    GLESv2
+    jnigraphics
+)
+
+# Add include directories for libvncclient
+target_include_directories(native-vnc PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/libvncclient/include
+)

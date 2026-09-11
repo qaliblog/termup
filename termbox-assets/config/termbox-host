@@ -1,0 +1,50 @@
+#!/bin/bash
+# termbox-host - Exit Ubuntu and return to native TermBox shell
+#
+# When called from inside the Ubuntu proot environment, this command
+# exits the proot session and drops the user back into the native
+# TermBox shell environment.
+#
+# It cannot exec a host binary from inside the guest (proot ptrace-wraps
+# the whole process tree and the host paths do not exist inside the fake
+# root), so it writes a marker file into the bound home
+# (/root inside the guest == $HOME on the host) and exits. The login
+# shell wrapper (termbox-shell-wrapper) then picks up the marker and
+# drops the user into the native TermBox shell.
+#
+# Usage:
+#   termbox-host         - Exit to native TermBox shell
+#   termbox-host help    - Show help information
+#
+# Copyright (c) TermBox Contributors
+# SPDX-License-Identifier: MIT
+
+if [ "${1:-}" = "help" ] || [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
+    echo "termbox-host - Exit Ubuntu to native TermBox shell"
+    echo ""
+    echo "Usage:"
+    echo "  termbox-host         Exit Ubuntu and return to TermBox shell"
+    echo "  termbox-host help    Show this help message"
+    echo ""
+    echo "From the native TermBox shell, you can re-enter Ubuntu with:"
+    echo "  termbox-ubuntu"
+    echo ""
+    exit 0
+fi
+
+# Paths
+TERMBOX_PREFIX="${PREFIX:-/data/data/com.qali.termbox/files/usr}"
+TERMBOX_APP_DIR="${TERMBOX_PREFIX%/files/usr}"
+TERMBOX_HOME="${TERMBOX_APP_DIR}/files/home"
+
+# Inside the Ubuntu proot guest: uid is 0 and /etc/os-release is the guest's.
+# Write the marker into the bound home (/root == host $HOME) and exit.
+if [ -f /etc/os-release ] && [ "$(id -u 2>/dev/null)" = "0" ]; then
+    echo "Exiting Ubuntu..."
+    if touch /root/.termbox-host 2>/dev/null; then
+        exit 0
+    fi
+fi
+
+# Not inside proot (or marker failed): just start a regular TermBox shell.
+exec "${TERMBOX_PREFIX}/bin/bash" --login
