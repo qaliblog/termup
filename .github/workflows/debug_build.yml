@@ -71,9 +71,14 @@ jobs:
           
           # Create rfb subdirectory and copy generated rfbconfig.h for headers that expect rfb/rfbconfig.h
           mkdir -p rfb
-          cp rfbconfig.h rfb/ 2>/dev/null || true
-          # Also copy to include/rfb for headers that look there
-          cp rfbconfig.h ../include/rfb/ 2>/dev/null || true
+          if [ -f rfbconfig.h ]; then
+            cp rfbconfig.h rfb/
+            cp rfbconfig.h ../include/rfb/
+            echo "Copied rfbconfig.h to build/rfb/ and include/rfb/"
+          else
+            echo "WARNING: rfbconfig.h not found in build directory"
+            find . -name "rfbconfig.h" 2>/dev/null | head -5
+          fi
           
           # Copy built library to jniLibs using absolute paths (CMake expects app/src/jniLibs/)
           mkdir -p "${GITHUB_WORKSPACE}/app/src/jniLibs/arm64-v8a"
