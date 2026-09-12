@@ -20,10 +20,22 @@ public class VncClient {
         void onBell();
     }
 
+    public static class CursorInfo {
+        public int width;
+        public int height;
+        public int xHot;
+        public int yHot;
+
+        public boolean isValid() {
+            return width > 0 && height > 0;
+        }
+    }
+
     private long mNativePtr;
     private final Observer mObserver;
     private volatile boolean mConnected = false;
     private boolean mDestroyed = false;
+    public CursorInfo cursorInfo = new CursorInfo();
 
     public VncClient(Observer observer) {
         mObserver = observer;

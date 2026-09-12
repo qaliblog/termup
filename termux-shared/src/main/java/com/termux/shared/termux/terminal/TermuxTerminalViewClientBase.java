@@ -124,4 +124,7 @@ public class TermuxTerminalViewClientBase implements TerminalViewClient {
         Logger.logStackTrace(tag, e);
     }
 
+    public void onDestroy() {
+    }
+
 }

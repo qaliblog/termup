@@ -91,4 +91,7 @@ public class TermuxTerminalSessionClientBase implements TerminalSessionClient {
         Logger.logStackTrace(tag, e);
     }
 
+    public void onDestroy() {
+    }
+
 }
