@@ -59,7 +59,7 @@ jobs:
           
           # Clone libvncserver if not present (CMake expects it at app/src/main/libvncserver)
           if [ ! -d "app/src/main/libvncserver" ]; then
-            git clone --depth 1 --branch LibVNCServer-0.9.15 https://github.com/LibVNC/libvncserver.git app/src/main/libvncserver
+            git clone --depth 1 https://github.com/LibVNC/libvncserver.git app/src/main/libvncserver
           fi
           
           # Build libvncclient using cmake

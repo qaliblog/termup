@@ -282,7 +282,6 @@ static void onGotCursorShape(rfbClient *client, int xHot, int yHot, int width, i
 static void setCallbacks(rfbClient *client) {
     client->GetPassword = onGetPassword;
     client->GetCredential = onGetCredential;
-    client->VerifyServerCertificate = onVerifyServerCertificate;
     client->Bell = onBell;
     client->GotXCutText = onGotXCutTextLatin1;
     client->GotXCutTextUTF8 = onGotXCutTextUTF8;
@@ -426,12 +425,12 @@ Java_com_termux_app_vnc_VncClient_nativeSendKeyEvent(JNIEnv * /*env*/, jobject /
     auto client = (rfbClient *) client_ptr;
     rfbBool down = is_down ? TRUE : FALSE;
 
-    // Remap Alt key to Meta key for MacOS
-    auto isServerMacOS = client->serverMajor == 3 && client->serverMinor == 889;
-    if (isServerMacOS) {
-        if (key_sym == 0xffe9  /* Left alt  */) key_sym = 0xffe7  /* Left meta  */;
-        if (key_sym == 0xffea  /* Right alt */) key_sym = 0xffe8  /* Right meta */;
-    }
+// Remap Alt key to Meta key for MacOS (server version check not available in this libvncserver version)
+    // auto isServerMacOS = client->serverMajor == 3 && client->serverMinor == 889;
+    // if (isServerMacOS) {
+    //     if (key_sym == 0xffe9  /* Left alt  */) key_sym = 0xffe7  /* Left meta  */;
+    //     if (key_sym == 0xffea  /* Right alt */) key_sym = 0xfff8  /* Right meta */;
+    // }
 
     if (xt_code > 0 && SendExtendedKeyEvent(client, key_sym, xt_code, down))
         return JNI_TRUE;
@@ -486,8 +485,10 @@ Java_com_termux_app_vnc_VncClient_nativeRefreshFrameBuffer(JNIEnv * /*env*/, job
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_termux_app_vnc_VncClient_nativePauseFramebufferUpdates(JNIEnv * /*env*/, jobject /*thiz*/, jlong client_ptr,
-                                                                 jboolean pause) {
-    ((rfbClient *) client_ptr)->pauseFramebufferUpdates = pause;
+                                                                  jboolean pause) {
+    // pauseFramebufferUpdates not available in this libvncserver version
+    (void)client_ptr;
+    (void)pause;
 }
 
 extern "C"
