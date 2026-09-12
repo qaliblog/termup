@@ -19,7 +19,7 @@ import com.termux.app.vnc.VncClient;
 import com.termux.app.vnc.VncFrameView;
 import com.termux.app.vnc.VncInputView;
 import com.termux.app.vnc.UserCredential;
-import com.termux.app.vnc.CursorInfo;
+import com.termux.app.vnc.VncClient.CursorInfo;
 
 import java.security.cert.X509Certificate;
 

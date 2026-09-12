@@ -213,7 +213,7 @@ public class VncFrameView extends GLSurfaceView implements GLSurfaceView.Rendere
         GLES20.glUniform1i(mFrameTextureUniform, 0);
         GLES20.glUniform1i(mCursorTextureUniform, 1);
 
-        CursorInfo cursorInfo = mVncClient.cursorInfo;
+        VncClient.CursorInfo cursorInfo = mVncClient.cursorInfo;
         if (cursorInfo != null && cursorInfo.isValid()) {
             GLES20.glUniform1i(mHasCursorUniform, 1);
             // Simple cursor transform for now
