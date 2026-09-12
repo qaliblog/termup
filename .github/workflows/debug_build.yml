@@ -53,7 +53,7 @@ jobs:
         run: |
           set -euo pipefail
           echo "========================================="
-          echo "  Building VNC Native Library"
+          echo "  Building VNC Native Library (cross-compile for arm64)"
           echo "========================================="
           echo ""
           
@@ -62,11 +62,26 @@ jobs:
             git clone --depth 1 https://github.com/LibVNC/libvncserver.git app/src/main/libvncserver
           fi
           
-          # Build libvncclient using cmake
+          # Cross-compile libvncclient for arm64 using Android NDK
+          NDK_PATH="/usr/local/lib/android/sdk/ndk/29.0.14206865"
+          TOOLCHAIN_FILE="${NDK_PATH}/build/cmake/android.toolchain.cmake"
+          
           cd "${GITHUB_WORKSPACE}/app/src/main/libvncserver"
-          mkdir -p build
-          cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DWITH_LIBSSL=OFF -DWITH_LIBSSH2=OFF -DWITH_LIBJPEG=OFF -DWITH_LIBPNG=OFF -DWITH_LZO=OFF -DWITH_ZLIB=ON -DBUILD_SHARED_LIBS=OFF ..
+          mkdir -p build_arm64
+          cd build_arm64
+          cmake -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN_FILE}" \
+            -DANDROID_ABI=arm64-v8a \
+            -DANDROID_PLATFORM=android-21 \
+            -DANDROID_STL=c++_static \
+            -DWITH_LIBSSL=OFF \
+            -DWITH_LIBSSH2=OFF \
+            -DWITH_LIBJPEG=OFF \
+            -DWITH_LIBPNG=OFF \
+            -DWITH_LZO=OFF \
+            -DWITH_ZLIB=ON \
+            -DBUILD_SHARED_LIBS=OFF \
+            ..
           make -j$(nproc) vncclient
           
           # Copy headers from source tree (rfbclient.h, rfbproto.h, etc.) AND generated rfbconfig.h from build
@@ -74,7 +89,7 @@ jobs:
           # Copy all headers from source tree
           cp -r "${GITHUB_WORKSPACE}/app/src/main/libvncserver/include/rfb" "${GITHUB_WORKSPACE}/app/src/main/cpp/libvncserver_include/"
           # Overlay generated rfbconfig.h from build directory
-          cp "${GITHUB_WORKSPACE}/app/src/main/libvncserver/build/include/rfb/rfbconfig.h" "${GITHUB_WORKSPACE}/app/src/main/cpp/libvncserver_include/rfb/" 2>/dev/null || true
+          cp "${GITHUB_WORKSPACE}/app/src/main/libvncserver/build_arm64/include/rfb/rfbconfig.h" "${GITHUB_WORKSPACE}/app/src/main/cpp/libvncserver_include/rfb/" 2>/dev/null || true
           # Verify the copy
           echo "Verifying copied headers:"
           ls -la "${GITHUB_WORKSPACE}/app/src/main/cpp/libvncserver_include/rfb/" | head -20
@@ -87,9 +102,9 @@ jobs:
           
           # Copy built library to jniLibs using absolute paths (CMake expects app/src/jniLibs/)
           mkdir -p "${GITHUB_WORKSPACE}/app/src/jniLibs/arm64-v8a"
-          cp "${GITHUB_WORKSPACE}/app/src/main/libvncserver/build/libvncclient.a" "${GITHUB_WORKSPACE}/app/src/jniLibs/arm64-v8a/libvncclient.a"
+          cp "${GITHUB_WORKSPACE}/app/src/main/libvncserver/build_arm64/libvncclient.a" "${GITHUB_WORKSPACE}/app/src/jniLibs/arm64-v8a/libvncclient.a"
           
-          echo "VNC native library built successfully"
+          echo "VNC native library built successfully for arm64"
 
       - name: Prepare TermUp assets
         shell: bash {0}
@@ -200,7 +215,7 @@ jobs:
               LAYER_TYPE=$(file "$LAYER_PATH")
               echo "  $LAYER_BIN: PASS ($(du -h "$LAYER_PATH" | cut -f1))"
               echo "               Type: $LAYER_TYPE"
-              if echo "$LAYER_TYPE" | grep -qi "aarch64\\|ARM aarch64"; then
+              if echo "$LAYER_TYPE" | grep -qi "aarch64\|ARM aarch64"; then
                 echo "               Architecture: VERIFIED (AArch64)"
               else
                 echo "  $LAYER_BIN:   FAIL (wrong architecture!)"
