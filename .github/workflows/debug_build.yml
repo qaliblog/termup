@@ -294,7 +294,7 @@ jobs:
           (cd "$APK_DIR_PATH" && sha256sum *.apk > "${APK_BASENAME_PREFIX}_sha256sums") || true
 
       - name: Upload APKs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: termup-release-${{ env.PACKAGE_VARIANT }}
           path: |
