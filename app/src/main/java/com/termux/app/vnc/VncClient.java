@@ -26,6 +26,15 @@ public class VncClient {
         public int xHot;
         public int yHot;
 
+        public CursorInfo() {}
+
+        public CursorInfo(int width, int height, int xHot, int yHot) {
+            this.width = width;
+            this.height = height;
+            this.xHot = xHot;
+            this.yHot = yHot;
+        }
+
         public boolean isValid() {
             return width > 0 && height > 0;
         }
