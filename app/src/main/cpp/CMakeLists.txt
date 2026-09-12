@@ -20,6 +20,7 @@ target_link_libraries(native-vnc
     log
     GLESv2
     jnigraphics
+    z
 )
 
 # Add include directories for libvncclient
