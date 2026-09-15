@@ -33,7 +33,7 @@ if [ "${1:-}" = "help" ] || [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
 fi
 
 # Paths
-TERMBOX_PREFIX="${PREFIX:-/data/data/com.qali.termbox/files/usr}"
+TERMBOX_PREFIX="${PREFIX:-/data/data/com.qali.termup/files/usr}"
 TERMBOX_APP_DIR="${TERMBOX_PREFIX%/files/usr}"
 TERMBOX_HOME="${TERMBOX_APP_DIR}/files/home"
 

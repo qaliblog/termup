@@ -31,7 +31,7 @@ if [ "${1:-}" = "help" ] || [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
 fi
 
 # Paths
-TERMBOX_PREFIX="${PREFIX:-/data/data/com.qali.termbox/files/usr}"
+TERMBOX_PREFIX="${PREFIX:-/data/data/com.qali.termup/files/usr}"
 TERMBOX_APP_DIR="${TERMBOX_PREFIX%/files/usr}"
 TERMBOX_HOME="${TERMBOX_APP_DIR}/files/home"
 
@@ -46,7 +46,7 @@ if [ -f /etc/os-release ] && [ "$(id -u 2>/dev/null)" = "0" ]; then
 fi
 
 echo "Requesting Android storage permission..."
-ACTION="com.qali.termbox.app.request_storage_permissions"
+ACTION="com.qali.termup.app.request_storage_permissions"
 
 status=1
 # Preferred: go through the app's own am socket server (termux-am).

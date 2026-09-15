@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: MIT
 
 # TermBox paths
-export TERMBOX_APP_DATA_DIR="/data/data/com.qali.termbox"
+export TERMBOX_APP_DATA_DIR="/data/data/com.qali.termup"
 export TERMBOX_PREFIX="${TERMBOX_APP_DATA_DIR}/files/usr"
 export TERMBOX_HOME="${TERMBOX_APP_DATA_DIR}/files/home"
 export TERMBOX_UROOT="${TERMBOX_APP_DATA_DIR}/files/ubuntu-root"

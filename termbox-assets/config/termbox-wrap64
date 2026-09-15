@@ -51,7 +51,7 @@ if [ -f /etc/os-release ] && [ "$(id -u 2>/dev/null)" = "0" ]; then
     DEFAULT_ROOTS+=("$HOME_D")
 else
     # On the host: operate directly on the app data dir (no proot needed).
-    TERMBOX_PREFIX="${PREFIX:-/data/data/com.qali.termbox/files/usr}"
+    TERMBOX_PREFIX="${PREFIX:-/data/data/com.qali.termup/files/usr}"
     TERMBOX_APP_DIR="${TERMBOX_PREFIX%/files/usr}"
     TERMBOX_HOME="${TERMBOX_APP_DIR}/files/home"
     TERMBOX_UROOT="${TERMBOX_APP_DIR}/files/ubuntu-root"

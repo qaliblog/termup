@@ -10,7 +10,7 @@
 
 set -euo pipefail
 
-TERMBOX_APP_DIR="${TERMUX_APP_DATA_DIR:-/data/data/com.qali.termbox}"
+TERMBOX_APP_DIR="${TERMUX_APP_DATA_DIR:-/data/data/com.qali.termup}"
 TERMBOX_PREFIX="${TERMBOX_APP_DIR}/files/usr"
 TERMBOX_HOME="${TERMBOX_APP_DIR}/files/home"
 TERMBOX_UROOT="${TERMBOX_APP_DIR}/files/ubuntu-root"
@@ -181,7 +181,7 @@ if [[ "${ELF_CLASS}" == "02" ]]; then
             ;;
         3e)
             # EM_X86_64 (0x3E) = x86_64 - use Box64
-            BOX64="${BOX64_PATH:-/data/data/com.qali.termbox/files/usr/bin/box64}"
+            BOX64="${BOX64_PATH:-/data/data/com.qali.termup/files/usr/bin/box64}"
             if [[ -x "${BOX64}" ]]; then
                 exec "${BOX64}" "${TARGET}" "$@"
             else
@@ -206,7 +206,7 @@ elif [[ "${ELF_CLASS}" == "01" ]]; then
             ;;
         03)
             # EM_386 (0x03) = x86 - use Box86 if available
-            BOX86="${BOX86_PATH:-/data/data/com.qali.termbox/files/usr/bin/box86}"
+            BOX86="${BOX86_PATH:-/data/data/com.qali.termup/files/usr/bin/box86}"
             if [[ -x "${BOX86}" ]]; then
                 exec "${BOX86}" "${TARGET}" "$@"
             else

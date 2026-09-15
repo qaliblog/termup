@@ -347,9 +347,9 @@ public final class TermuxConstants {
      */
 
     /** TermBox app name */
-    public static final String TERMUX_APP_NAME = "TermBox"; // TermBox: TermBox
+    public static final String TERMUX_APP_NAME = "TermUp"; // TermBox: TermUp
     /** TermBox package name - the Android applicationId */
-    public static final String TERMUX_PACKAGE_NAME = "com.qali.termbox"; // TermBox: com.qali.termbox
+    public static final String TERMUX_PACKAGE_NAME = "com.qali.termup"; // TermBox: com.qali.termup
     /** Termux GitHub repo name */
     public static final String TERMUX_GITHUB_REPO_NAME = "termux-app"; // Default: "termux-app"
     /** Termux GitHub repo url */

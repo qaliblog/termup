@@ -412,7 +412,7 @@ final class TermuxInstaller {
      * of the app's data directory.
      */
     private static final String TERMBOX_PATHS =
-        "TERMBOX_PREFIX=\"${PREFIX:-/data/data/com.qali.termbox/files/usr}\"\n" +
+        "TERMBOX_PREFIX=\"${PREFIX:-/data/data/com.qali.termup/files/usr}\"\n" +
         "TERMBOX_APP_DIR=\"${TERMBOX_PREFIX%/files/usr}\"\n" +
         "TERMBOX_HOME=\"${TERMBOX_APP_DIR}/files/home\"\n" +
         "TERMBOX_UROOT=\"${TERMBOX_APP_DIR}/files/ubuntu-root\"\n" +
@@ -671,7 +671,7 @@ final class TermuxInstaller {
         "    DEFAULT_ROOTS+=(\"$HOME_D\")\n" +
         "else\n" +
         "    # On the host: operate directly on the app data dir (no proot needed).\n" +
-        "    TERMBOX_PREFIX=\"${PREFIX:-/data/data/com.qali.termbox/files/usr}\"\n" +
+        "    TERMBOX_PREFIX=\"${PREFIX:-/data/data/com.qali.termup/files/usr}\"\n" +
         "    TERMBOX_APP_DIR=\"${TERMBOX_PREFIX%/files/usr}\"\n" +
         "    TERMBOX_HOME=\"${TERMBOX_APP_DIR}/files/home\"\n" +
         "    TERMBOX_UROOT=\"${TERMBOX_APP_DIR}/files/ubuntu-root\"\n" +
@@ -2111,7 +2111,7 @@ final class TermuxInstaller {
             "  echo \"From the native TermBox shell, re-enter Ubuntu with: termbox-ubuntu\"\n" +
             "  exit 0\n" +
             "fi\n\n" +
-            "TERMBOX_PREFIX=\"${PREFIX:-/data/data/com.qali.termbox/files/usr}\"\n" +
+            "TERMBOX_PREFIX=\"${PREFIX:-/data/data/com.qali.termup/files/usr}\"\n" +
             "TERMBOX_APP_DIR=\"${TERMBOX_PREFIX%/files/usr}\"\n" +
             "TERMBOX_HOME=\"${TERMBOX_APP_DIR}/files/home\"\n\n" +
             "# Inside the Ubuntu proot guest: uid is 0 and /etc/os-release is the guest's.\n" +
@@ -2142,7 +2142,7 @@ final class TermuxInstaller {
             "  echo \"Inside Ubuntu, shared storage is mounted at /sdcard.\"\n" +
             "  exit 0\n" +
             "fi\n\n" +
-            "TERMBOX_PREFIX=\"${PREFIX:-/data/data/com.qali.termbox/files/usr}\"\n" +
+            "TERMBOX_PREFIX=\"${PREFIX:-/data/data/com.qali.termup/files/usr}\"\n" +
             "TERMBOX_APP_DIR=\"${TERMBOX_PREFIX%/files/usr}\"\n" +
             "TERMBOX_HOME=\"${TERMBOX_APP_DIR}/files/home\"\n\n" +
             "# When run from inside Ubuntu, delegate to the host shell: write the marker\n" +
@@ -2155,7 +2155,7 @@ final class TermuxInstaller {
             "  fi\n" +
             "fi\n\n" +
             "echo \"Requesting Android storage permission...\"\n" +
-            "ACTION=\"com.qali.termbox.app.request_storage_permissions\"\n\n" +
+            "ACTION=\"com.qali.termup.app.request_storage_permissions\"\n\n" +
             "status=1\n" +
             "# Preferred: go through the app's own am socket server (termux-am).\n" +
             "if [ -x \"${TERMBOX_PREFIX}/bin/termux-am\" ] && [ \"${TERMUX_APP__AM_SOCKET_SERVER_ENABLED:-false}\" = \"true\" ]; then\n" +
@@ -2193,8 +2193,8 @@ final class TermuxInstaller {
             "# Automatically enters Ubuntu ARM64 environment\n" +
             "# Copyright (c) TermBox Contributors - MIT License\n\n" +
             "export TERMBOX_DEFAULT_SESSION=\"ubuntu\"\n" +
-            "export TERMBOX_HOST_SHELL=\"${PREFIX:-/data/data/com.qali.termbox/files/usr}/bin/bash\"\n" +
-            "TERMBOX_PREFIX=\"${PREFIX:-/data/data/com.qali.termbox/files/usr}\"\n" +
+            "export TERMBOX_HOST_SHELL=\"${PREFIX:-/data/data/com.qali.termup/files/usr}/bin/bash\"\n" +
+            "TERMBOX_PREFIX=\"${PREFIX:-/data/data/com.qali.termup/files/usr}\"\n" +
             "TERMBOX_APP_DIR=\"${TERMBOX_PREFIX%/files/usr}\"\n" +
             "TERMBOX_HOME=\"${TERMBOX_APP_DIR}/files/home\"\n\n" +
             "# Shell startup: source the user's ~/.bashrc so aliases/functions/exports\n" +

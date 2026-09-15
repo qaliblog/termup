@@ -651,7 +651,7 @@ static void resolve_paths(void) {
     } else {
         /* Host (Android): derive from PREFIX like termbox-wrap64. */
         const char *pfx = getenv("PREFIX");
-        if (!pfx) pfx = "/data/data/com.qali.termbox/files/usr";
+        if (!pfx) pfx = "/data/data/com.qali.termup/files/usr";
         PREFIX = pfx;
         APP_DIR = NULL;
         {

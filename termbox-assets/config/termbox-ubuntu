@@ -17,7 +17,7 @@
 # NOTE: paths derive from $PREFIX instead of ${ANDROID_DATA:-...}: Android
 # always sets ANDROID_DATA=/data, so the fallback would never trigger and
 # paths would resolve under /data instead of the app's data directory.
-TERMBOX_PREFIX="${PREFIX:-/data/data/com.qali.termbox/files/usr}"
+TERMBOX_PREFIX="${PREFIX:-/data/data/com.qali.termup/files/usr}"
 TERMBOX_APP_DIR="${TERMBOX_PREFIX%/files/usr}"
 TERMBOX_HOME="${TERMBOX_APP_DIR}/files/home"
 TERMBOX_UROOT="${TERMBOX_APP_DIR}/files/ubuntu-root"

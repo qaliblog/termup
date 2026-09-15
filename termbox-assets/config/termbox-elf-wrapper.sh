@@ -16,7 +16,7 @@
 set -euo pipefail
 
 # Default paths
-TERMBOX_PREFIX="${TERMBOX_PREFIX:-/data/data/com.qali.termbox/files/usr}"
+TERMBOX_PREFIX="${TERMBOX_PREFIX:-/data/data/com.qali.termup/files/usr}"
 BOX64_BIN="${TERMBOX_PREFIX}/bin/box64"
 BOX86_BIN="${TERMBOX_PREFIX}/bin/box86"
 TERMBOX_EXEC_LOG="${TERMBOX_LOG_DIR:-/tmp}/termbox-exec.log"
