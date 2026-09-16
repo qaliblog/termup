@@ -26,8 +26,7 @@
             app:tabIndicatorColor="?attr/colorPrimary"
             app:tabSelectedTextColor="?attr/colorPrimary"
             app:tabTextColor="?attr/colorOnSurfaceVariant"
-            app:tabMode="fixed"
-            app:tabGravity="fill" />
+            app:tabMode="fixed" />
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/main_view_pager"
