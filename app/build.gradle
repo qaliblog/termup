@@ -253,14 +253,15 @@ afterEvaluate {
         // Java compilation depends on bootstrap download
         variant.javaCompileProvider.get().dependsOn(downloadBootstraps)
 
-        // NDK build tasks also need the bootstrap zip in place
+        // NDK/CMake tasks also need the bootstrap zip in place, since
+        // libtermux-bootstrap embeds it via .incbin at compile time.
+        // Note: CMake release tasks are named e.g. buildCMakeRelWithDebInfo[...],
+        // so no variant-name filter is applied here.
         tasks.configureEach { task ->
-            if (task.name.startsWith('configureNdkBuild') &&
-                    task.name.contains(variant.name.capitalize())) {
-                task.dependsOn(downloadBootstraps)
-            }
-            if (task.name.startsWith('buildNdkBuild') &&
-                    task.name.contains(variant.name.capitalize())) {
+            if (task.name.startsWith('configureNdkBuild') ||
+                    task.name.startsWith('buildNdkBuild') ||
+                    task.name.startsWith('configureCMake') ||
+                    task.name.startsWith('buildCMake')) {
                 task.dependsOn(downloadBootstraps)
             }
             if (task.name.startsWith('externalNativeBuild') &&
