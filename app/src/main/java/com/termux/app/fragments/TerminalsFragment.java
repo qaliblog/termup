@@ -61,10 +61,12 @@ public class TerminalsFragment extends Fragment {
 
         // Set up sessions list
         ListView termuxSessionsListView = mRootView.findViewById(R.id.terminal_sessions_list);
-        mTermuxSessionListViewController = new TermuxSessionsListViewController(mActivity, mActivity.getTermuxService().getTermuxSessions());
-        termuxSessionsListView.setAdapter(mTermuxSessionListViewController);
-        termuxSessionsListView.setOnItemClickListener(mTermuxSessionListViewController);
-        termuxSessionsListView.setOnItemLongClickListener(mTermuxSessionListViewController);
+        if (mActivity.getTermuxService() != null) {
+            mTermuxSessionListViewController = new TermuxSessionsListViewController(mActivity, mActivity.getTermuxService().getTermuxSessions());
+            termuxSessionsListView.setAdapter(mTermuxSessionListViewController);
+            termuxSessionsListView.setOnItemClickListener(mTermuxSessionListViewController);
+            termuxSessionsListView.setOnItemLongClickListener(mTermuxSessionListViewController);
+        }
 
         // Set up drawer buttons
         ImageButton settingsButton = mRootView.findViewById(R.id.settings_button);

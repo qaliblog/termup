@@ -255,6 +255,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         setupMainTabs();
 
+        // Sync legacy view fields now that fragments are attached, so that
+        // getTerminalView(), getDrawer(), etc. resolve during fragment setup.
+        syncTerminalViewFields();
+
         setTerminalToolbarView(savedInstanceState);
 
         FileReceiverActivity.updateFileReceiverActivityComponentsState(this);
@@ -291,17 +295,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         if (mIsInvalidState) return;
 
-        mIsVisible = true;
+        mIsVisible = true;        // Fragment lifecycle (onStart/onResume/onStop) is driven by the FragmentManager;
+        // the clients are started here since they are not fragments.
+        if (mTermuxTerminalSessionActivityClient != null)
+            mTermuxTerminalSessionActivityClient.onStart();
 
-        if (mTerminalsFragment != null) {
-            mTerminalsFragment.onStart();
-        } else {
-            if (mTermuxTerminalSessionActivityClient != null)
-                mTermuxTerminalSessionActivityClient.onStart();
-
-            if (mTermuxTerminalViewClient != null)
-                mTermuxTerminalViewClient.onStart();
-        }
+        if (mTermuxTerminalViewClient != null)
+            mTermuxTerminalViewClient.onStart();
 
         if (mPreferences.isTerminalMarginAdjustmentEnabled())
             addTermuxActivityRootViewGlobalLayoutListener();
@@ -317,20 +317,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         if (mIsInvalidState) return;
 
-        if (mTerminalsFragment != null) {
-            mTerminalsFragment.onResume();
-        } else {
-            if (mTermuxTerminalSessionActivityClient != null)
-                mTermuxTerminalSessionActivityClient.onResume();
+        if (mTermuxTerminalSessionActivityClient != null)
+            mTermuxTerminalSessionActivityClient.onResume();
 
-            if (mTermuxTerminalViewClient != null)
-                mTermuxTerminalViewClient.onResume();
-        }
-
-        // Also resume desktop fragment if it exists
-        if (mDesktopFragment != null) {
-            mDesktopFragment.onResume();
-        }
+        if (mTermuxTerminalViewClient != null)
+            mTermuxTerminalViewClient.onResume();
 
         // Check if a crash happened on last run of the app or if a plugin crashed and show a
         // notification with the crash details if it did
@@ -349,24 +340,19 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         mIsVisible = false;
 
-        if (mTerminalsFragment != null) {
-            mTerminalsFragment.onStop();
-        } else {
-            if (mTermuxTerminalSessionActivityClient != null)
-                mTermuxTerminalSessionActivityClient.onStop();
+        if (mTermuxTerminalSessionActivityClient != null)
+            mTermuxTerminalSessionActivityClient.onStop();
 
-            if (mTermuxTerminalViewClient != null)
-                mTermuxTerminalViewClient.onStop();
-        }
-
-        if (mDesktopFragment != null) {
-            mDesktopFragment.onPause();
-        }
+        if (mTermuxTerminalViewClient != null)
+            mTermuxTerminalViewClient.onStop();
 
         removeTermuxActivityRootViewGlobalLayoutListener();
 
         unregisterTermuxActivityBroadcastReceiver();
-        getDrawer().closeDrawers();
+
+        DrawerLayout drawer = getDrawer();
+        if (drawer != null)
+            drawer.closeDrawers();
     }
 
     @Override
@@ -557,8 +543,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
 
     private void setTerminalToolbarView(Bundle savedInstanceState) {
-        mTermuxTerminalExtraKeys = new TermuxTerminalExtraKeys(this, mTerminalView,
-            mTermuxTerminalViewClient, mTermuxTerminalSessionActivityClient);
+        mTermuxTerminalExtraKeys = new TermuxTerminalExtraKeys(this, getTerminalView(),
+            getTermuxTerminalViewClient(), getTermuxTerminalSessionClient());
 
         final ViewPager terminalToolbarViewPager = getTerminalToolbarViewPager();
         if (mPreferences.shouldShowTerminalToolbar()) terminalToolbarViewPager.setVisibility(View.VISIBLE);
@@ -581,6 +567,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         mMainViewPager = findViewById(R.id.main_view_pager);
 
         mMainPagerAdapter = new MainPagerAdapter(this);
+
+        // Create the fragments and store references BEFORE calling setAdapter(), since
+        // ViewPager2 commits fragments synchronously and TerminalsFragment.setupViews()
+        // calls back into the activity (e.g. via getTerminalView()) during onCreateView.
+        mTerminalsFragment = mMainPagerAdapter.getTerminalsFragment();
+        mDesktopFragment = mMainPagerAdapter.getDesktopFragment();
+
         mMainViewPager.setAdapter(mMainPagerAdapter);
         mMainViewPager.setOffscreenPageLimit(1); // Keep both fragments alive
 
@@ -611,9 +604,25 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             }
         });
 
-        // Get fragment references
-        mTerminalsFragment = mMainPagerAdapter.getTerminalsFragment();
-        mDesktopFragment = mMainPagerAdapter.getDesktopFragment();
+    }
+
+    /**
+     * Keep the legacy view/field references in sync with the fragments, so that code
+     * using {@link #getTerminalView()}, {@link #getDrawer()} and the client fields keeps
+     * working whether or not the getters have fragment references available.
+     */
+    private void syncTerminalViewFields() {
+        if (mTerminalView == null)
+            mTerminalView = getTerminalView();
+
+        if (mTermuxTerminalSessionActivityClient == null && mTerminalsFragment != null)
+            mTermuxTerminalSessionActivityClient = mTerminalsFragment.getTermuxTerminalSessionClient();
+
+        if (mTermuxTerminalViewClient == null && mTerminalsFragment != null)
+            mTermuxTerminalViewClient = mTerminalsFragment.getTermuxTerminalViewClient();
+
+        if (mTermuxSessionListViewController == null && mTerminalsFragment != null)
+            mTermuxSessionListViewController = mTerminalsFragment.getTermuxSessionListViewController();
     }
 
     private void setTerminalToolbarHeight() {
@@ -690,8 +699,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     @SuppressLint("RtlHardcoded")
     @Override
     public void onBackPressed() {
-        if (getDrawer().isDrawerOpen(Gravity.LEFT)) {
-            getDrawer().closeDrawers();
+        DrawerLayout drawer = getDrawer();
+        if (drawer != null && drawer.isDrawerOpen(Gravity.LEFT)) {
+            drawer.closeDrawers();
         } else {
             finishActivityIfNotFinishing();
         }
@@ -720,11 +730,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         TerminalSession currentSession = getCurrentSession();
         if (currentSession == null) return;
 
-        boolean autoFillEnabled = mTerminalView.isAutoFillEnabled();
+        TerminalView terminalView = getTerminalView();
+        boolean autoFillEnabled = terminalView != null && terminalView.isAutoFillEnabled();
 
         menu.add(Menu.NONE, CONTEXT_MENU_SELECT_URL_ID, Menu.NONE, R.string.action_select_url);
         menu.add(Menu.NONE, CONTEXT_MENU_SHARE_TRANSCRIPT_ID, Menu.NONE, R.string.action_share_transcript);
-        if (!DataUtils.isNullOrEmpty(mTerminalView.getStoredSelectedText()))
+        if (terminalView != null && !DataUtils.isNullOrEmpty(terminalView.getStoredSelectedText()))
             menu.add(Menu.NONE, CONTEXT_MENU_SHARE_SELECTED_TEXT, Menu.NONE, R.string.action_share_selected_text);
         if (autoFillEnabled)
             menu.add(Menu.NONE, CONTEXT_MENU_AUTOFILL_USERNAME, Menu.NONE, R.string.action_autofill_username);
@@ -742,7 +753,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     /** Hook system menu to show context menu instead. */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        mTerminalView.showContextMenu();
+        TerminalView terminalView = getTerminalView();
+        if (terminalView != null)
+            terminalView.showContextMenu();
         return false;
     }
 
@@ -750,21 +763,24 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     public boolean onContextItemSelected(MenuItem item) {
         TerminalSession session = getCurrentSession();
 
+        TermuxTerminalViewClient terminalViewClient = getTermuxTerminalViewClient();
+        TerminalView terminalView = getTerminalView();
+
         switch (item.getItemId()) {
             case CONTEXT_MENU_SELECT_URL_ID:
-                mTermuxTerminalViewClient.showUrlSelection();
+                if (terminalViewClient != null) terminalViewClient.showUrlSelection();
                 return true;
             case CONTEXT_MENU_SHARE_TRANSCRIPT_ID:
-                mTermuxTerminalViewClient.shareSessionTranscript();
+                if (terminalViewClient != null) terminalViewClient.shareSessionTranscript();
                 return true;
             case CONTEXT_MENU_SHARE_SELECTED_TEXT:
-                mTermuxTerminalViewClient.shareSelectedText();
+                if (terminalViewClient != null) terminalViewClient.shareSelectedText();
                 return true;
             case CONTEXT_MENU_AUTOFILL_USERNAME:
-                mTerminalView.requestAutoFillUsername();
+                if (terminalView != null) terminalView.requestAutoFillUsername();
                 return true;
             case CONTEXT_MENU_AUTOFILL_PASSWORD:
-                mTerminalView.requestAutoFillPassword();
+                if (terminalView != null) terminalView.requestAutoFillPassword();
                 return true;
             case CONTEXT_MENU_RESET_TERMINAL_ID:
                 onResetTerminalSession(session);
@@ -785,7 +801,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 ActivityUtils.startActivity(this, new Intent(this, SettingsActivity.class));
                 return true;
             case CONTEXT_MENU_REPORT_ID:
-                mTermuxTerminalViewClient.reportIssueFromTranscript();
+                if (terminalViewClient != null) terminalViewClient.reportIssueFromTranscript();
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -796,7 +812,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     public void onContextMenuClosed(Menu menu) {
         super.onContextMenuClosed(menu);
         // onContextMenuClosed() is triggered twice if back button is pressed to dismiss instead of tap for some reason
-        mTerminalView.onContextMenuClosed(menu);
+        TerminalView terminalView = getTerminalView();
+        if (terminalView != null)
+            terminalView.onContextMenuClosed(menu);
     }
 
     private void showKillSessionDialog(TerminalSession session) {
@@ -838,11 +856,14 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         }
     }
     private void toggleKeepScreenOn() {
-        if (mTerminalView.getKeepScreenOn()) {
-            mTerminalView.setKeepScreenOn(false);
+        TerminalView terminalView = getTerminalView();
+        if (terminalView == null) return;
+
+        if (terminalView.getKeepScreenOn()) {
+            terminalView.setKeepScreenOn(false);
             mPreferences.setKeepScreenOn(false);
         } else {
-            mTerminalView.setKeepScreenOn(true);
+            terminalView.setKeepScreenOn(true);
             mPreferences.setKeepScreenOn(true);
         }
     }
@@ -922,11 +943,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         mExtraKeysView = extraKeysView;
     }
 
+    @Nullable
     public DrawerLayout getDrawer() {
         if (mTerminalsFragment != null && mTerminalsFragment.getDrawerLayout() != null) {
             return mTerminalsFragment.getDrawerLayout();
         }
-        return (DrawerLayout) findViewById(R.id.drawer_layout);
+        View drawer = findViewById(R.id.drawer_layout);
+        return drawer instanceof DrawerLayout ? (DrawerLayout) drawer : null;
     }
 
 
@@ -977,7 +1000,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         if (mTerminalsFragment != null && mTerminalsFragment.getTerminalView() != null) {
             return mTerminalsFragment.getTerminalView();
         }
-        return mTerminalView;
+        if (mTerminalView != null) {
+            return mTerminalView;
+        }
+        // Fall back to finding the view in the fragment's layout, since fragments may
+        // attach before the legacy fields have been assigned.
+        View view = findViewById(R.id.terminal_view);
+        return view instanceof TerminalView ? (TerminalView) view : null;
     }
 
     public TermuxTerminalViewClient getTermuxTerminalViewClient() {
