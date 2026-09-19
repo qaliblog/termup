@@ -493,7 +493,8 @@
         ],
         "archive": {
             "filename": "box64-libs.tar.gz",
-            "sha256": "3d5442e9a07856de74047e4e1af1abe775dc008f6b248e9d324e73e15dde0a21"
+            "sha256": null,
+            "_comment": "Not pinned: the archive is repacked deterministically from the pinned .debs above (each download is sha256-verified), so its hash changes whenever any deb is refreshed. Pinning it here only produces false mismatch warnings."
         }
     },
     "box64-layer": {

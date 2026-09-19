@@ -99,7 +99,20 @@ chmod 1777 /rootfs/tmp
 # Bind-mount host /dev into rootfs so /dev/null works inside chroot
 mount --bind /dev /rootfs/dev 2>/dev/null || true
 
-chroot /rootfs /bin/bash -c '
+chroot /rootfs /bin/bash /chroot-provision.sh# Unmount /dev from rootfs
+umount /rootfs/dev 2>/dev/null || true
+
+rm -f /rootfs/etc/resolv.conf
+echo "  [docker] Provisioning complete."
+INNER_EOF
+# Write the chroot provisioning script to a temp file and mount it in as well.
+# Running it via `chroot /rootfs /bin/bash /chroot-provision.sh` (a real file)
+# instead of `bash -c '...'` avoids single-quote escaping entirely: quotes and
+# backslashes inside survive verbatim (the -c form mangled \\n and heredoc
+# delimiters, which once shipped an un-provisioned rootfs).
+CHROOT_INNER=$(mktemp /tmp/termbox-chroot-inner-XXXXXX.sh)
+cat > "${CHROOT_INNER}" << 'CHROOT_EOF'
+
   export DEBIAN_FRONTEND=noninteractive
   export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
   export TMPDIR=/tmp
@@ -394,14 +407,9 @@ PROFILEEOF
     systemd dbus ca-certificates locales \
     curl wget git unzip \
     build-essential gnupg gpgv 2>/dev/null | head -30
-'
+CHROOT_EOF
+chmod +x "${CHROOT_INNER}"
 
-# Unmount /dev from rootfs
-umount /rootfs/dev 2>/dev/null || true
-
-rm -f /rootfs/etc/resolv.conf
-echo "  [docker] Provisioning complete."
-INNER_EOF
 chmod +x "${PROVISION_INNER}"
 
 # Run the container with the inner script mounted.
@@ -411,10 +419,11 @@ run_docker run --rm --privileged --platform linux/arm64 \
   -v "${ROOTFS_DIR}:/rootfs" \
   -v /etc/resolv.conf:/etc/resolv.conf:ro \
   -v "${PROVISION_INNER}:/provision.sh:ro" \
+  -v "${CHROOT_INNER}:/chroot-provision.sh:ro" \
   ubuntu:24.04 \
   /bin/bash /provision.sh
 
-rm -f "${PROVISION_INNER}"
+rm -f "${PROVISION_INNER}" "${CHROOT_INNER}"
 
 # ---- Fix permissions (Docker creates root-owned files) ----
 # After Docker runs as root inside the container, many files end up owned
