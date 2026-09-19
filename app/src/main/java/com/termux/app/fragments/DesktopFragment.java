@@ -110,23 +110,58 @@ public class DesktopFragment extends Fragment implements VncClient.Observer {
             try {
                 // Get the Termux app data directory
                 String appDataDir = mActivity.getApplicationInfo().dataDir;
-                String prootDir = appDataDir + "/files/proot-distro/installed-rootfs/ubuntu";
-                
+                // Must match the rootfs path TermuxInstaller creates (files/ubuntu-root);
+                // proot-distro's own layout (installed-rootfs/ubuntu) is never used here.
+                String prootDir = appDataDir + "/files/ubuntu-root";
+                String prefixDir = appDataDir + "/files/usr";
+
                 // Check if Ubuntu is installed
                 java.io.File prootFile = new java.io.File(prootDir);
-                if (!prootFile.exists()) {
+                if (!new java.io.File(prootDir, "etc/os-release").exists()) {
                     mHandler.post(() -> {
                         showLoading("Ubuntu not installed. Please install it first from the terminal.");
                     });
                     return;
                 }
 
-                // Start VNC server using proot-distro
-                ProcessBuilder pb = new ProcessBuilder(
-                    "proot-distro", "login", "ubuntu", "--user", "root", "--",
-                    "bash", "-c",
-                    "export DISPLAY=:1 && vncserver :1 -geometry 1920x1080 -depth 24 -localhost no -SecurityTypes None 2>&1"
-                );
+                // Launch the guest VNC server via the app's bundled proot binary.
+                // Scripts in app-private storage cannot be exec'd directly on modern
+                // Android (noexec mount + shebang restrictions), so invoke proot with
+                // an explicit interpreter - exactly like termbox-ubuntu does.
+                java.util.List<String> cmd = new java.util.ArrayList<>();
+                cmd.add(prefixDir + "/bin/proot");
+                cmd.add("--link2symlink");
+                cmd.add("--kill-on-exit");
+                cmd.add("--root-id");
+                cmd.add("--cwd=/root");
+                cmd.add("-b"); cmd.add("/dev");
+                cmd.add("-b"); cmd.add("/proc");
+                cmd.add("-b"); cmd.add("/sys");
+                cmd.add("-b"); cmd.add(appDataDir + "/files/home:/root");
+                cmd.add("-b"); cmd.add(prefixDir + "/tmp:/tmp");
+                cmd.add("-b"); cmd.add(prefixDir + "/etc/resolv.conf:/etc/resolv.conf");
+                cmd.add("-r"); cmd.add(prootDir);
+                cmd.add("/usr/bin/env");
+                cmd.add("-i");
+                cmd.add("HOME=/root");
+                cmd.add("USER=root");
+                cmd.add("PROOT_TMP_DIR=" + prefixDir + "/tmp");
+                cmd.add("PROOT_LOADER=" + prefixDir + "/libexec/proot/loader");
+                cmd.add("PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin");
+                cmd.add("LANG=C.UTF-8");
+                cmd.add("/usr/bin/bash");
+                cmd.add("-c");
+                cmd.add("export DISPLAY=:1; " +
+                    "mkdir -p /root/.vnc; " +
+                    "vncserver :1 -geometry 1920x1080 -depth 24 -localhost no -SecurityTypes None >/root/.vnc/start.log 2>&1; " +
+                    "cat /root/.vnc/start.log");
+                ProcessBuilder pb = new ProcessBuilder(cmd);
+                // PROOT_* must be set in the actual process environment too - proot
+                // reads its configuration from the HOST environment, not the guest's.
+                pb.environment().put("PROOT_TMP_DIR", prefixDir + "/tmp");
+                pb.environment().put("PROOT_LOADER", prefixDir + "/libexec/proot/loader");
+                pb.environment().put("HOME", appDataDir + "/files/home");
+                pb.environment().put("PATH", prefixDir + "/bin:/system/bin");
                 pb.directory(new java.io.File(appDataDir));
                 pb.redirectErrorStream(true);
                 

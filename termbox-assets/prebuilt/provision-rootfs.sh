@@ -295,8 +295,13 @@ DPKGEOF
   chmod +x /usr/local/bin/termbox-dpkg-fixer
 
   # Step 9: Create VNC server startup script
+  # NOTE: the outer heredoc delimiter (VNCEOF) must differ from any delimiter used
+  # INSIDE the generated script (XSTART_INNER / VNC_CFG_INNER), otherwise the outer
+  # heredoc terminates early and the chroot bash -c fails with
+  # "syntax error: unexpected end of file" (this silently shipped an
+  # un-provisioned rootfs once).
   echo "  [config] Creating VNC server startup script..."
-  cat > /usr/local/bin/termbox-vnc-start << 'VNCEOF'
+  cat > /usr/local/bin/termbox-vnc-start << 'VNCSTART_EOF'
 #!/bin/bash
 # termbox-vnc-start - Start VNC server with XFCE desktop
 # This script is run inside the Ubuntu proot environment
@@ -312,7 +317,7 @@ mkdir -p /root/.vnc
 
 # Create xstartup if it doesn't exist
 if [ ! -f /root/.vnc/xstartup ]; then
-    cat > /root/.vnc/xstartup << 'XSTARTEOF'
+    cat > /root/.vnc/xstartup << 'XSTART_INNER'
 #!/bin/bash
 unset SESSION_MANAGER
 unset DBUS_SESSION_BUS_ADDRESS
@@ -329,18 +334,18 @@ fi
 
 # Start XFCE session
 exec startxfce4
-XSTARTEOF
+XSTART_INNER
     chmod +x /root/.vnc/xstartup
 fi
 
 # Create VNC config
 if [ ! -f /root/.vnc/config ]; then
-    cat > /root/.vnc/config << 'VNCEOF'
+    cat > /root/.vnc/config << 'VNC_CFG_INNER'
 geometry=1920x1080
 depth=24
 localhost=no
 SecurityTypes=None
-VNCEOF
+VNC_CFG_INNER
 fi
 
 # Create VNC password (empty for auto-connect)
@@ -357,7 +362,7 @@ if ! vncserver -list 2>/dev/null | grep -q "^${VNC_DISPLAY}"; then
 else
     echo "VNC server already running on display ${VNC_DISPLAY}"
 fi
-VNCEOF
+VNCSTART_EOF
   chmod +x /usr/local/bin/termbox-vnc-start
 
   # Step 10: Add VNC startup to profile.d for auto-start
@@ -371,9 +376,12 @@ fi
 PROFILEEOF
   chmod +x /etc/profile.d/termbox-vnc.sh
 
-  # Write provisioned marker
-  touch /etc/termup-provisioned
-  echo "  [apt] Provisioned marker written."
+  # Write provisioned markers. /etc/termup-provisioned is checked by this
+  # script's verification step; /etc/termbox-provisioned is checked by the
+  # runtime (termbox-provision / TermuxInstaller diagnostics) so first-start
+  # provisioning is skipped when the rootfs is already complete.
+  touch /etc/termup-provisioned /etc/termbox-provisioned
+  echo "  [apt] Provisioned markers written."
 
   # Keep apt lists so users can install additional packages at runtime.
   echo "  [apt] Cleaning downloaded .debs (keeping lists for runtime)..."

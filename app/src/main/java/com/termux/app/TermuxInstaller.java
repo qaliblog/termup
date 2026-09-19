@@ -395,7 +395,11 @@ final class TermuxInstaller {
      * Box64, and other offline runtime components from the APK assets.
      */
 
-    private static final String TERMBOX_ASSETS_DIR = "termbox-runtime";
+    // NOTE: must match the asset directory name produced by termbox-assets/build.gradle
+    // (termupApkAssetsDir) and bundled into the APK - a mismatch means hasTermBoxAssets()
+    // returns false, installTermBoxRuntime() is never called and sessions fall back to
+    // the bare bootstrap shell ("blank terminal", "Ubuntu not installed").
+    private static final String TERMBOX_ASSETS_DIR = "termup-runtime";
     private static final String TERMBOX_VERSION_FILE = TERMBOX_ASSETS_DIR + "/config/termbox-version.json";
     private static final String TERMBOX_BOOTSTRAP_DIR = TERMBOX_ASSETS_DIR + "/bootstrap";
     private static final String TERMBOX_PROOT_DIR = TERMBOX_ASSETS_DIR + "/proot";
@@ -916,7 +920,7 @@ final class TermuxInstaller {
                         // re-extracts x86_64 tools into fresh Gradle transform dirs during a
                         // build, which a one-shot scan cannot see. (Non-fatal if missing.)
                         try {
-                            extractAsset(context, TERMBOX_BOX64_DIR + "/termbox-wrapd",
+                            extractAsset(context, TERMBOX_BOX64_DIR + "/termup-wrapd",
                                 new File(filesDir, "usr/bin/termbox-wrapd"));
                             setExecutable(new File(filesDir, "usr/bin/termbox-wrapd"));
                             Logger.logInfo(LOG_TAG, "termbox-wrapd extracted successfully");
@@ -2330,13 +2334,15 @@ final class TermuxInstaller {
         File guestLibexecDir = new File(ubuntuRoot, "usr/local/libexec");
         guestLibexecDir.mkdirs();
         try {
-            extractAsset(context, TERMBOX_BOX64_DIR + "/termbox-x86_64-launcher",
+            // Asset files are named termup-* (see termbox-assets/build.gradle); installed
+            // under the termbox-* names the wrap tools expect.
+            extractAsset(context, TERMBOX_BOX64_DIR + "/termup-x86_64-launcher",
                 new File(guestLibexecDir, "termbox-x86_64-launcher"));
             setExecutable(new File(guestLibexecDir, "termbox-x86_64-launcher"));
-            extractAsset(context, TERMBOX_BOX64_DIR + "/termbox-scan64",
+            extractAsset(context, TERMBOX_BOX64_DIR + "/termup-scan64",
                 new File(guestLibexecDir, "termbox-scan64"));
             setExecutable(new File(guestLibexecDir, "termbox-scan64"));
-            extractAsset(context, TERMBOX_BOX64_DIR + "/termbox-wrapd",
+            extractAsset(context, TERMBOX_BOX64_DIR + "/termup-wrapd",
                 new File(guestLibexecDir, "termbox-wrapd"));
             setExecutable(new File(guestLibexecDir, "termbox-wrapd"));
         } catch (Exception e) {

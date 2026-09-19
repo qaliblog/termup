@@ -672,11 +672,16 @@ task prepareTermUpAssets {
         }
 
         // ========================================
-        // 4. XFCE DESKTOP ENVIRONMENT
+        // 4. XFCE DESKTOP ENVIRONMENT (optional)
+        // XFCE + tigervnc are installed INTO the Ubuntu rootfs by
+        // prebuilt/provision-rootfs.sh, which is the primary (and offline-complete)
+        // delivery path. This overlay is only a legacy alternative and its upstream
+        // URL no longer exists - skip entirely when the manifest has no entry.
         // ========================================
-        logger.quiet("\n--- Preparing XFCE Desktop Environment ---")
         def xfce = manifest.'xfce-desktop'
-        try {
+        if (xfce == null) {
+            logger.quiet("\n--- XFCE Desktop: skipped (bundled in provisioned rootfs) ---")
+        } else try {
             def xfceFile = new File(termupDownloadsDir, xfce.filename)
             if (downloadAsset("xfce-desktop", xfce.url, xfce.sha256, xfceFile, termupOffline)) {
                 def apkXfceDir = new File(termupApkAssetsDir, "xfce")
